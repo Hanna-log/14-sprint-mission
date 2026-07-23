@@ -4,7 +4,7 @@ import java.util.UUID;
 import lombok.Getter;
 
 @Getter
-public abstract class Entity {
+public abstract class Entity  {
 
     private final UUID id;
     private final Long createdAt;

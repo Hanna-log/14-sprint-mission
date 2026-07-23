@@ -5,6 +5,7 @@ import lombok.Getter;
 
 @Getter
 public class Message extends Entity {
+
     private String contents;
     private final UUID userId;
     private final UUID channelId;

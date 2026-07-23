@@ -3,7 +3,7 @@ package com.sprint.mission.discodeit.entity;
 import lombok.Getter;
 
 @Getter
-public class User extends Entity  {
+public class User extends Entity {
     private String nickName;
 
     private User (String nickName) {
