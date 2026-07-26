@@ -1,14 +1,20 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.exception.InvalidMessageContentException;
+import java.io.Serializable;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
-public class Message extends Entity {
+public class Message extends Entity implements Serializable {
+    static final long serialVersionUID = 1L;
 
-    private String contents;
-    private final UUID userId;
-    private final UUID channelId;
+    String contents;
+    final UUID userId;
+    final UUID channelId;
 
     private Message(String contents, UUID userId, UUID channelId) {
         super();
@@ -24,7 +30,7 @@ public class Message extends Entity {
     @Override
     public String update(String contents) {
         if(contents == null || contents.isBlank()) {
-            throw new IllegalArgumentException("내용을 빈칸으로 둘 수 없습니다.");
+            throw new InvalidMessageContentException();
         }
         this.contents = contents;
         updateTimeStamp();

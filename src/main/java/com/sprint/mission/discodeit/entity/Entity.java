@@ -1,14 +1,19 @@
 package com.sprint.mission.discodeit.entity;
 
+import java.io.Serializable;
 import java.util.UUID;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
-public abstract class Entity  {
+public abstract class Entity implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-    private final UUID id;
-    private final Long createdAt;
-    private Long updatedAt;
+    final UUID id;
+    final Long createdAt;
+    Long updatedAt;
 
 
     protected Entity() {

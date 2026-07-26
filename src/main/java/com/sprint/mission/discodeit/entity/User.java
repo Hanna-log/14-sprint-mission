@@ -1,9 +1,13 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.exception.InvalidNicknameException;
+import java.io.Serializable;
 import lombok.Getter;
 
 @Getter
-public class User extends Entity {
+public class User extends Entity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nickName;
 
     private User (String nickName) {
@@ -15,11 +19,10 @@ public class User extends Entity {
         return new Builder();
     }
 
-
     @Override
     public String update(String nickName) {
         if(nickName == null || nickName.isBlank()) {
-            throw new IllegalArgumentException("입력된 닉네임이 없습니다.");
+            throw new InvalidNicknameException();
         }
         this.nickName = nickName;
         updateTimeStamp();

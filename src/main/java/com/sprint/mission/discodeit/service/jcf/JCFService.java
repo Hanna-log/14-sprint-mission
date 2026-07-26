@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public abstract class JCFService<T extends Entity> implements Service<T> {
     private final Map<UUID,T> data;
@@ -29,8 +30,9 @@ public abstract class JCFService<T extends Entity> implements Service<T> {
 
     @Override
     public List<T> findAll() {
-         // return new ArrayList<>(this.data.values());
-       return this.data.values().stream().toList();
+        // return new LinkedList<>(data.values());  ---> 수정 가능 리스트 반환
+        // return this.data.values().stream().toList(); ---> 수정 불가 리스트 값 반환 (추가,삭제 안됨)
+        return this.data.values().stream().collect(Collectors.toList()); // ---> 수정 가능 리스트 반환
     }
 
     @Override

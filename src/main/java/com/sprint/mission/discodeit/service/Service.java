@@ -13,5 +13,13 @@ public interface Service<T extends Entity> {
     /* public abstract */ T update(T entity);
     /* public abstract */ void delete(UUID id);
 
+    default String findIdAsString(UUID id) {
+        return findById(id)
+            .map(Object::toString)
+            .orElse("해당 데이터를 찾을 수 없습니다. ID(" + id + ")");
+    }
+
+
+
 }
 

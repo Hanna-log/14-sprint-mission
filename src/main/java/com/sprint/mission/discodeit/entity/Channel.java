@@ -1,11 +1,18 @@
 package com.sprint.mission.discodeit.entity;
 
 
+import com.sprint.mission.discodeit.exception.InvalidChannelNameException;
+import java.io.Serializable;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.experimental.FieldDefaults;
 
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
-public class Channel extends Entity  {
-    private String channelName;
+public class Channel extends Entity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    String channelName;
 
     private Channel(String channelName) {
         super();
@@ -20,7 +27,7 @@ public class Channel extends Entity  {
     @Override
     public String update(String channelName) {
         if(channelName == null || channelName.isBlank()) {
-            throw new IllegalArgumentException("입력된 채널명이 없습니다.");
+            throw new InvalidChannelNameException();
         }
         this.channelName = channelName;
         updateTimeStamp();

@@ -3,12 +3,18 @@ package com.sprint.mission.discodeit;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.UserNotFoundException;
+import com.sprint.mission.discodeit.factory.RepositoryFactory;
+import com.sprint.mission.discodeit.repository.ChannelRepository;
+import com.sprint.mission.discodeit.repository.MessageRepository;
+import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.ChannelService;
 import com.sprint.mission.discodeit.service.MessageService;
 import com.sprint.mission.discodeit.service.UserService;
-import com.sprint.mission.discodeit.service.jcf.JCFChannelService;
-import com.sprint.mission.discodeit.service.jcf.JCFMessageService;
-import com.sprint.mission.discodeit.service.jcf.JCFUserService;
+import com.sprint.mission.discodeit.service.basic.BasicChannelService;
+import com.sprint.mission.discodeit.service.basic.BasicMessageService;
+import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,9 +23,24 @@ public class JavaApplication {
     public static void main(String[] args) {
 
         // 0. 의존성 주입(객체 생성)
+
+        /* === 1차 요구사항건 (JCF Service 버전) - 참고용으로 남김 ===
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
         MessageService messageService = new JCFMessageService(userService, channelService);
+        */
+
+        // === 2차 요구사항건 (Basic + Repository + Factory 버전) ===
+        String type = "jcf"; // ---> type을 "file"로 입력할 경우 File 버전으로 교체됨.
+
+        UserRepository userRepository = RepositoryFactory.createUserRepository(type);
+        ChannelRepository channelRepository = RepositoryFactory.createChannelRepository(type);
+        MessageRepository messageRepository = RepositoryFactory.createMessageRepository(type);
+
+        UserService userService = new BasicUserService(userRepository);
+        ChannelService channelService = new BasicChannelService(channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+
 
         // 1-1. 유저 등록
         User user1 = User.builder().nickName("리키").build();
@@ -38,7 +59,7 @@ public class JavaApplication {
         // 1-3. 메세지 등록
         Message msg1 = Message.builder().contents("1. 리키입니다~!").userId(user1.getId())
             .channelId(ch1.getId()).build();
-        Message msg2 = Message.builder().contents("2. 태현이라고합니다.").userId(user2.getId())
+        Message msg2 = Message.builder().contents("2. 태현이라고 합니다.").userId(user2.getId())
             .channelId(ch1.getId()).build();
         Message msg3 = Message.builder().contents("3. [수정 전] 공지사항 바꿔주세요!").userId(user1.getId())
             .channelId(ch2.getId()).build();
@@ -83,7 +104,9 @@ public class JavaApplication {
         System.out.println("\n=== 메세지 수정 후 출력 ===");
         msg3.update("3. [수정 후] 건의게시판에 올릴게요~");
         messageService.update(msg3);
-        messageService.findById(msg3.getId()).map(Message::toString).ifPresent(System.out::println);
+        // messageService.findById(msg3.getId()).map(Message::toString).ifPresent(System.out::println);
+        System.out.println(messageService.findIdAsString(msg3.getId()));
+
 
         // 4. 메세지 삭제 및 확인
         System.out.println("\n=== 메세지 삭제 전 출력 ===");
@@ -98,8 +121,8 @@ public class JavaApplication {
         Message trueTest = Message.builder().contents("정상 테스트 결과입니다.").userId(user1.getId())
             .channelId(ch1.getId()).build();
         messageService.save(trueTest);
-        messageService.findById(trueTest.getId()).map(Message::toString)
-            .ifPresent(System.out::println);
+        //messageService.findById(trueTest.getId()).map(Message::toString).ifPresent(System.out::println);
+        System.out.println(messageService.findIdAsString(trueTest.getId()));
 
         System.out.println("\n=== 실패출력 테스트 ===");
         try {
@@ -107,7 +130,7 @@ public class JavaApplication {
                 .userId(UUID.randomUUID()).channelId(ch1.getId()).build();
             messageService.save(falseTest);
             messageService.findById(falseTest.getId());
-        } catch (IllegalArgumentException exception) {
+        } catch (UserNotFoundException | ChannelNotFoundException exception) {
             System.out.println("실패 테스트 결과입니다. " + exception.getMessage());
         }
 

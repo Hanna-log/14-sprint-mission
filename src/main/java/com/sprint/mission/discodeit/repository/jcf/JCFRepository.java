@@ -30,7 +30,7 @@ public abstract class JCFRepository<T extends Entity> implements Repository<T> {
     @Override
     public List<T> findAll() {
         // return new LinkedList<>(data.values());  ---> 수정 가능 리스트 반환
-        // return this.data.values().stream().toList(); --> 수정 불가 리스트 값 반환 (추가,삭제 안됨)
+        // return this.data.values().stream().toList(); ---> 수정 불가 리스트 값 반환 (추가,삭제 안됨)
         return this.data.values().stream().collect(Collectors.toList()); // ---> 수정 가능 리스트 반환
     }
 
