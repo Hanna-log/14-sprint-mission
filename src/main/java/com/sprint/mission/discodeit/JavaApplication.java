@@ -18,20 +18,20 @@ import com.sprint.mission.discodeit.service.basic.BasicUserService;
 import java.util.List;
 import java.util.UUID;
 
+
 public class JavaApplication {
 
     public static void main(String[] args) {
-
         // 0. 의존성 주입(객체 생성)
 
-        /* === 1차 요구사항건 (JCF Service 버전) - 참고용으로 남김 ===
+        /* === 스프린트 미션 2-1차 요구사항건 (JCF Service 버전) - 참고용으로 남김 ===
         UserService userService = new JCFUserService();
         ChannelService channelService = new JCFChannelService();
         MessageService messageService = new JCFMessageService(userService, channelService);
         */
 
-        // === 2차 요구사항건 (Basic + Repository + Factory 버전) ===
-        String type = "jcf"; // ---> type을 "file"로 입력할 경우 File 버전으로 교체됨.
+        // === 스프린트 미션 2-2차 요구사항건 (Basic + Repository + Factory 버전) ===
+        String type = "jcf";
 
         UserRepository userRepository = RepositoryFactory.createUserRepository(type);
         ChannelRepository channelRepository = RepositoryFactory.createChannelRepository(type);
@@ -39,102 +39,122 @@ public class JavaApplication {
 
         UserService userService = new BasicUserService(userRepository);
         ChannelService channelService = new BasicChannelService(channelRepository);
-        MessageService messageService = new BasicMessageService(messageRepository, userRepository, channelRepository);
+        MessageService messageService = new BasicMessageService(messageRepository,userRepository,channelRepository);
+
+        // 스프린트 미션3 -> 요구사항건대로 setupUser,setupChannel 메소드로 변경!
+        User user = setupUser(userService);
+        Channel channel = setupChannel(channelService);
+
+        // 테스트
+    Message message = messageCreateTest(messageService,channel,user);
+    updateMessageTest(messageService, message);
+
+    Message deletableMessage = createMessage(messageService, channel,user,"이 메세지는 곧 삭제됩니다.");
+   deleteMessageTest(messageService, deletableMessage);
+
+   validationTest(messageService, user, channel);
+    }
+
+    private static User setupUser(UserService userService) {
+        User user = User.builder().nickName("리키").build();
+        userService.save(user);
+        System.out.println("=== 유저 등록 ===");
+        System.out.println(user);
+        return user;
+    }
+
+    private static Channel setupChannel(ChannelService channelService) {
+        Channel channel = Channel.builder().channelName("자유게시판").build();
+        channelService.save(channel);
+        System.out.println("\n=== 채널 등록 ===");
+        System.out.println(channel);
+        return channel;
+    }
 
 
-        // 1-1. 유저 등록
-        User user1 = User.builder().nickName("리키").build();
-        User user2 = User.builder().nickName("태현").build();
-
-        userService.save(user1);
-        userService.save(user2);
-
-        // 1-2. 채널 등록
-        Channel ch1 = Channel.builder().channelName("자유게시판").build();
-        Channel ch2 = Channel.builder().channelName("건의게시판").build();
-
-        channelService.save(ch1);
-        channelService.save(ch2);
-
-        // 1-3. 메세지 등록
-        Message msg1 = Message.builder().contents("1. 리키입니다~!").userId(user1.getId())
-            .channelId(ch1.getId()).build();
-        Message msg2 = Message.builder().contents("2. 태현이라고 합니다.").userId(user2.getId())
-            .channelId(ch1.getId()).build();
-        Message msg3 = Message.builder().contents("3. [수정 전] 공지사항 바꿔주세요!").userId(user1.getId())
-            .channelId(ch2.getId()).build();
-        Message msg4 = Message.builder().contents("4. [삭제 전] 네, 알겠습니다!").userId(user2.getId())
-            .channelId(ch2.getId()).build();
-
-        messageService.save(msg1);
-        messageService.save(msg2);
-        messageService.save(msg3);
-        messageService.save(msg4);
-
-        // 1-4. 등록된 유저, 채널, 메세지 총 출력
-        System.out.println("\n === 등록 유저 전체 목록 (" + userService.findAll().size() + "건) ===");
-        userService.findAll().forEach(System.out::println);
-
-        System.out.println("\n === 등록 채널 전체 목록 (" + channelService.findAll().size() + "건) ===");
-        channelService.findAll().forEach(System.out::println);
-
-        System.out.println("\n === 등록 메세지 전체 목록 (" + messageService.findAll().size() + "건) ===");
+    // messageCreateTest가 이제 Message를 return 하도록 바뀜 (뒤에서 재사용해야 하니까)
+    private static Message messageCreateTest(MessageService messageService, Channel channel, User user) {
+        Message message = createMessage(messageService, channel, user,"안녕하세요! 첫 메세지입니다.");
+        System.out.println("\n=== 메세지 등록 ===");
+        System.out.println(message);
+        System.out.println("\n=== 전체 메세지 목록 ===");
         messageService.findAll().forEach(System.out::println);
+        return message;
+    }
 
-        // 2-1. 특정 유저의 메세지만 출력
-        List<Message> userMessage = messageService.findAll().stream()
-            .filter(m->m.getUserId().equals(user1.getId()))
-            .toList();
+    // 메세지 만드는 부분을 공통 메소드로 뽑음 (재사용 위해)
+    private static Message createMessage(
+        MessageService messageService,
+        Channel channel,User user, String contents) {
 
-        System.out.printf("\n=== 유저 '%s'의 메세지만 출력 (%s건) ===\n", user1.getNickName(),userMessage.size());
-      userMessage.forEach(System.out::println);
+        Message message = Message.builder()
+            .contents(contents)
+            .userId(user.getId())
+            .channelId(channel.getId())
+            .build();
 
-        // 2-2. 특정 채널의 메세지만 출력
-        List<Message> channelMessage = messageService.findAll().stream()
-                .filter(m->m.getChannelId().equals(ch1.getId()))
-                    .toList();
+        messageService.save(message);
+        return message;
+    }
 
-        System.out.printf("\n=== 채널 '%s'의 메세지만 출력 (%s건) ===\n", ch1.getChannelName(), channelMessage.size());
-        channelMessage.forEach(System.out::println);
-
-        // 3. 메세지 수정 및 확인
+    private static void updateMessageTest(MessageService messageService, Message message) {
         System.out.println("\n=== 메세지 수정 전 출력 ===");
-        System.out.println(msg3.getContents());
-
+        System.out.println(message.getContents());
+        message.update("[수정 후] 내용을 바꿔봤어요~");
+        messageService.update(message);
         System.out.println("\n=== 메세지 수정 후 출력 ===");
-        msg3.update("3. [수정 후] 건의게시판에 올릴게요~");
-        messageService.update(msg3);
-        // messageService.findById(msg3.getId()).map(Message::toString).ifPresent(System.out::println);
-        System.out.println(messageService.findIdAsString(msg3.getId()));
+        System.out.println(messageService.findIdAsString(message.getId()));
+    }
 
-
-        // 4. 메세지 삭제 및 확인
+    private static void deleteMessageTest(MessageService messageService,Message message) {
         System.out.println("\n=== 메세지 삭제 전 출력 ===");
-        System.out.println(msg4.getContents());
-        messageService.delete(msg4.getId());
-
-        System.out.println("\n=== 메세지 삭제 후 출력 (" + messageService.findAll().size() + "건) ===");
+        System.out.println(message.getContents());
+        messageService.delete(message.getId());
+        System.out.println("\n=== 메세지 삭제 후 전체 목록 (" + messageService.findAll().size()+ "건) ===");
         messageService.findAll().forEach(System.out::println);
+    }
 
-        // 5. 유효성 검사 테스트 (정상, 실패)
+    private static void validationTest(MessageService messageService,User user,Channel channel){
         System.out.println("\n=== 정상출력 테스트 ===");
-        Message trueTest = Message.builder().contents("정상 테스트 결과입니다.").userId(user1.getId())
-            .channelId(ch1.getId()).build();
-        messageService.save(trueTest);
-        //messageService.findById(trueTest.getId()).map(Message::toString).ifPresent(System.out::println);
+        Message trueTest = createMessage(messageService, channel, user, "정상 테스트 결과입니다.");
         System.out.println(messageService.findIdAsString(trueTest.getId()));
 
         System.out.println("\n=== 실패출력 테스트 ===");
         try {
-            Message falseTest = Message.builder().contents("실패 테스트 결과입니다.")
-                .userId(UUID.randomUUID()).channelId(ch1.getId()).build();
+            Message falseTest = Message.builder()
+                .contents("실패 테스트 결과입니다.")
+                .userId(UUID.randomUUID())
+                .channelId(channel.getId())
+                .build();
             messageService.save(falseTest);
-            messageService.findById(falseTest.getId());
         } catch (UserNotFoundException | ChannelNotFoundException exception) {
-            System.out.println("실패 테스트 결과입니다. " + exception.getMessage());
+            System.out.println("실패 테스트 결과입니다." + exception.getMessage());
         }
-
 
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
