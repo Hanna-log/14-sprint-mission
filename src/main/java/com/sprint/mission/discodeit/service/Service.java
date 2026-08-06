@@ -1,11 +1,11 @@
 package com.sprint.mission.discodeit.service;
 
-import com.sprint.mission.discodeit.entity.Entity;
+import com.sprint.mission.discodeit.entity.UpdatableEntity;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface Service<T extends Entity> {
+public interface Service<T extends UpdatableEntity> {
 
     /* public abstract */ T save(T entity);
     /* public abstract */ Optional<T> findById(UUID id);

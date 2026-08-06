@@ -41,39 +41,42 @@ public class JavaApplication {
         ChannelService channelService = new BasicChannelService(channelRepository);
         MessageService messageService = new BasicMessageService(messageRepository,userRepository,channelRepository);
 
+        UserService userService1 = new BasicUserService(userRepository);
+        ChannelService channelService1 = new BasicChannelService(channelRepository);
+        MessageService messageService1 = new BasicMessageService(messageRepository,userRepository,channelRepository);
+
         // 스프린트 미션3 -> 요구사항건대로 setupUser,setupChannel 메소드로 변경!
         User user = setupUser(userService);
         Channel channel = setupChannel(channelService);
 
         // 테스트
-    Message message = messageCreateTest(messageService,channel,user);
-    updateMessageTest(messageService, message);
+        Message message = messageCreateTest(messageService,channel,user);
+        updateMessageTest(messageService, message);
 
-    Message deletableMessage = createMessage(messageService, channel,user,"이 메세지는 곧 삭제됩니다.");
-   deleteMessageTest(messageService, deletableMessage);
+        Message deletableMessage = createMessage(messageService, channel,user,"이 메세지는 곧 삭제됩니다.");
+        deleteMessageTest(messageService, deletableMessage);
 
-   validationTest(messageService, user, channel);
-    }
+        validationTest(messageService, user, channel);
+        }
 
-    private static User setupUser(UserService userService) {
+        private static User setupUser(UserService userService) {
         User user = User.builder().nickName("리키").build();
         userService.save(user);
         System.out.println("=== 유저 등록 ===");
         System.out.println(user);
         return user;
-    }
+        }
 
-    private static Channel setupChannel(ChannelService channelService) {
+        private static Channel setupChannel(ChannelService channelService) {
         Channel channel = Channel.builder().channelName("자유게시판").build();
         channelService.save(channel);
         System.out.println("\n=== 채널 등록 ===");
         System.out.println(channel);
         return channel;
-    }
+        }
 
-
-    // messageCreateTest가 이제 Message를 return 하도록 바뀜 (뒤에서 재사용해야 하니까)
-    private static Message messageCreateTest(MessageService messageService, Channel channel, User user) {
+        // messageCreateTest가 이제 Message를 return 하도록 바뀜 (뒤에서 재사용해야 하니까)
+        private static Message messageCreateTest(MessageService messageService, Channel channel, User user) {
         Message message = createMessage(messageService, channel, user,"안녕하세요! 첫 메세지입니다.");
         System.out.println("\n=== 메세지 등록 ===");
         System.out.println(message);
@@ -88,14 +91,12 @@ public class JavaApplication {
         Channel channel,User user, String contents) {
 
         Message message = Message.builder()
-            .contents(contents)
-            .userId(user.getId())
-            .channelId(channel.getId())
-            .build();
+            .contents(contents).authorId(user.getId()).channelId(channel.getId()).build();
 
         messageService.save(message);
         return message;
     }
+
 
     private static void updateMessageTest(MessageService messageService, Message message) {
         System.out.println("\n=== 메세지 수정 전 출력 ===");
@@ -114,16 +115,19 @@ public class JavaApplication {
         messageService.findAll().forEach(System.out::println);
     }
 
-    private static void validationTest(MessageService messageService,User user,Channel channel){
+    private static void validationTest(MessageService messageService,User user,Channel channel) {
         System.out.println("\n=== 정상출력 테스트 ===");
-        Message trueTest = createMessage(messageService, channel, user, "정상 테스트 결과입니다.");
+        Message trueTest = createMessage(
+            messageService, channel, user, "정상 테스트 결과입니다."
+        );
         System.out.println(messageService.findIdAsString(trueTest.getId()));
+
 
         System.out.println("\n=== 실패출력 테스트 ===");
         try {
             Message falseTest = Message.builder()
                 .contents("실패 테스트 결과입니다.")
-                .userId(UUID.randomUUID())
+                .authorId(UUID.randomUUID())
                 .channelId(channel.getId())
                 .build();
             messageService.save(falseTest);

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.jcf;
 
-import com.sprint.mission.discodeit.entity.Entity;
+import com.sprint.mission.discodeit.entity.UpdatableEntity;
 import com.sprint.mission.discodeit.repository.Repository;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class JCFRepository<T extends Entity> implements Repository<T> {
+public abstract class JCFRepository<T extends UpdatableEntity> implements Repository<T> {
     private final Map<UUID,T> data;
 
     protected JCFRepository() {

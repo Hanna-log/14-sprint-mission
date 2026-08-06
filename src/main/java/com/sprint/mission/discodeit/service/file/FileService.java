@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.service.file;
 
-import com.sprint.mission.discodeit.entity.Entity;
+import com.sprint.mission.discodeit.entity.UpdatableEntity;
 import com.sprint.mission.discodeit.service.Service;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-public abstract class FileService<T extends Entity> implements Service<T> {
+public abstract class FileService<T extends UpdatableEntity> implements Service<T> {
 
     private final String fileName;
 

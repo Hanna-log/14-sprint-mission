@@ -1,7 +1,7 @@
 package com.sprint.mission.discodeit.service.jcf;
 
 
-import com.sprint.mission.discodeit.entity.Entity;
+import com.sprint.mission.discodeit.entity.UpdatableEntity;
 import com.sprint.mission.discodeit.service.Service;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public abstract class JCFService<T extends Entity> implements Service<T> {
+public abstract class JCFService<T extends UpdatableEntity> implements Service<T> {
     private final Map<UUID,T> data;
 
     protected JCFService() {

@@ -43,8 +43,8 @@ public class BasicMessageService implements MessageService {
 
  */
     private void testMethod(Message message) {
-        userRepository.findById(message.getUserId())
-            .orElseThrow(()->new UserNotFoundException(message.getUserId()));
+        userRepository.findById(message.getAuthorId())
+            .orElseThrow(()->new UserNotFoundException(message.getAuthorId()));
         channelRepository.findById(message.getChannelId())
             .orElseThrow(()->new ChannelNotFoundException(message.getChannelId()));
     }

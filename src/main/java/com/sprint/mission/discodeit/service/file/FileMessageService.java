@@ -20,8 +20,8 @@ public class FileMessageService extends FileService<Message> implements MessageS
     }
 
     private void testMethod(Message message) {
-        userService.findById(message.getUserId())
-            .orElseThrow(()->new UserNotFoundException(message.getUserId()));
+        userService.findById(message.getAuthorId())
+            .orElseThrow(()->new UserNotFoundException(message.getAuthorId()));
         channelService.findById(message.getChannelId())
             .orElseThrow(()->new ChannelNotFoundException(message.getChannelId()));
     }

@@ -1,6 +1,6 @@
 package com.sprint.mission.discodeit.repository.file;
 
-import com.sprint.mission.discodeit.entity.Entity;
+import com.sprint.mission.discodeit.entity.UpdatableEntity;
 import com.sprint.mission.discodeit.repository.Repository;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,7 +16,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 
-public class FileRepository<T extends Entity> implements Repository<T> {
+public class FileRepository<T extends UpdatableEntity> implements Repository<T> {
 
    private final String fileName;
 

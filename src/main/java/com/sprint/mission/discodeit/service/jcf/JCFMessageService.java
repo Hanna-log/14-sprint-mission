@@ -17,8 +17,8 @@ public class JCFMessageService extends JCFService<Message> implements MessageSer
     }
 
     private void testMethod (Message message) {
-        if(userService.findById(message.getUserId()).isEmpty()) {
-            throw new IllegalArgumentException("해당 유저ID는 확인되지않습니다. 유저ID(" + message.getUserId() + ")");
+        if(userService.findById(message.getAuthorId()).isEmpty()) {
+            throw new IllegalArgumentException("해당 유저ID는 확인되지않습니다. 유저ID(" + message.getAuthorId() + ")");
         }
         if(channelService.findById(message.getChannelId()).isEmpty()) {
             throw new IllegalArgumentException("해당 유저ID는 확인되지않습니다. 유저ID(" + message.getChannelId() + ")");

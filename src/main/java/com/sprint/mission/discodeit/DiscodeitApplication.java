@@ -48,7 +48,7 @@ public class DiscodeitApplication {
 		ChannelService channelService = context.getBean(ChannelService.class);
 		MessageService messageService = context.getBean(MessageService.class);
 
-		// 셋업
+		// 유저, 채널 셋업
 		User user = setupUser(userService);
 		Channel channel = setupChannel(channelService);
 
@@ -65,6 +65,7 @@ public class DiscodeitApplication {
 		return user;
 	}
 
+
 	private static Channel setupChannel(ChannelService channelService) {
 		Channel channel = Channel.builder().channelName("자유게시판").build();
 		channelService.save(channel);
@@ -73,6 +74,22 @@ public class DiscodeitApplication {
 		System.out.println(channel);
 		return channel;
 	}
+
+	// 메세지 만드는 부분을 공통 메소드로 뽑음 (재사용 위해)
+	private static Message creatMessage(
+		MessageService messageService,
+		Channel channel,User user, String contents) {
+
+		Message message = Message.builder()
+			.contents(contents)
+			.authorId(user.getId())
+			.channelId(channel.getId())
+			.build();
+
+		messageService.save(message);
+		return message;
+	}
+
 
 	// messageCreateTest가 이제 Message를 return 하도록 바뀜 (뒤에서 재사용해야 하니까)
 	private static Message messageCreateTest(MessageService messageService, Channel channel, User user) {
@@ -84,20 +101,6 @@ public class DiscodeitApplication {
 		return message;
 	}
 
-	// 메세지 만드는 부분을 공통 메소드로 뽑음 (재사용 위해)
-	private static Message creatMessage(
-		MessageService messageService,
-		Channel channel,User user, String contents) {
-
-		Message message = Message.builder()
-			.contents(contents)
-			.userId(user.getId())
-			.channelId(channel.getId())
-			.build();
-
-		messageService.save(message);
-		return message;
-	}
 
 	private static void updateMessageTest(MessageService messageService, Message message) {
 		System.out.println("\n=== 메세지 수정 전 출력 ===");
@@ -125,7 +128,7 @@ public class DiscodeitApplication {
 		try {
 			Message falseTest = Message.builder()
 				.contents("실패 테스트 결과입니다.")
-				.userId(UUID.randomUUID())
+				.authorId(UUID.randomUUID())
 				.channelId(channel.getId())
 				.build();
 			messageService.save(falseTest);
@@ -134,4 +137,5 @@ public class DiscodeitApplication {
 		}
 
 	}
+
 }
