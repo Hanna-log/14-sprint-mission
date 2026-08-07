@@ -64,20 +64,20 @@ public class UserStatus extends UpdatableEntity {
 
     public static class Builder {
         private UUID userId;
-        private Instant lastActiceAt = Instant.now();
+        private Instant lastActiveAt = Instant.now();
 
         public Builder userId(UUID userId) {
           this.userId = userId;
           return this;
         }
 
-        public Builder lastActiceAt(Instant lastActiceAt) {
-            this.lastActiceAt = lastActiceAt;
+        public Builder lastActiveAt(Instant lastActiveAt) {
+            this.lastActiveAt = lastActiveAt;
             return this;
         }
 
         public UserStatus build() {
-            return new UserStatus(userId, lastActiceAt);
+            return new UserStatus(userId, lastActiveAt);
         }
     }
 

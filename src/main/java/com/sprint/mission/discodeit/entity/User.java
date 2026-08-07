@@ -15,11 +15,17 @@ import lombok.experimental.FieldDefaults;
 public class User extends UpdatableEntity {
     private static final long serialVersionUID = 1L;
 
+    String userName;
+    String email;
+    String password;
     String nickName;
     UUID profileId; // nullable(값이 없어도 됨) -> 0..1로 표시 (프로필 이미지 필수아님)!
 
-    private User (String nickName,UUID profileId) {
+    private User (String userName, String email,  String password, String nickName,UUID profileId) {
         super();
+        this.userName = userName;
+        this.email = email;
+        this.password = password;
         this.nickName = nickName;
         this.profileId = profileId;
     }
@@ -44,14 +50,37 @@ public class User extends UpdatableEntity {
         updateTimeStamp();
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+        updateTimeStamp();
+    }
+
     @Override
     public String toString() {
         return this.nickName;
     }
 
     public static class Builder {
+        private String userName;
+        private String email;
+        private String password;
         private String nickName;
         private UUID profileId;
+
+        public Builder userName(String userName){
+            this.userName = userName;
+            return this;
+        }
+
+        public Builder email(String email){
+            this.email = email;
+            return this;
+        }
+
+        public Builder password(String password){
+            this.password = password;
+            return this;
+        }
 
     public Builder nickName(String nickName){
         this.nickName = nickName;
@@ -64,7 +93,8 @@ public class User extends UpdatableEntity {
     }
 
     public User build() {
-        return new User(this.nickName,this.profileId);
+        return new User(this.userName, this.email,
+            this.password, this.nickName,this.profileId);
     }
 
 

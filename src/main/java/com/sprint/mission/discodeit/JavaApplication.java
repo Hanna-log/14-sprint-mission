@@ -22,6 +22,8 @@ import java.util.UUID;
 public class JavaApplication {
 
     public static void main(String[] args) {
+
+
         // 0. 의존성 주입(객체 생성)
 
         /* === 스프린트 미션 2-1차 요구사항건 (JCF Service 버전) - 참고용으로 남김 ===
@@ -31,6 +33,7 @@ public class JavaApplication {
         */
 
         // === 스프린트 미션 2-2차 요구사항건 (Basic + Repository + Factory 버전) ===
+        /*
         String type = "jcf";
 
         UserRepository userRepository = RepositoryFactory.createUserRepository(type);
@@ -134,8 +137,9 @@ public class JavaApplication {
         } catch (UserNotFoundException | ChannelNotFoundException exception) {
             System.out.println("실패 테스트 결과입니다." + exception.getMessage());
         }
-
+        */
     }
+
 }
 
 
