@@ -10,7 +10,7 @@ BinaryContent는 이미지, 파일 같은 바이너리(binary) 데이터를 담�
  User에서 유저 프로필 이미지 (User.profileId)
  Message에서 메시지에 첨부하는 파일들 (Message.attachmentIds)
 
- "파일 저장/조회/삭제" 로직을 BinaryContentService 하나로 통일해서 처리함.
+ "파일 저장(ex 프로필 이미지 저장)/파일 조회/파일 삭제" 로직을 BinaryContentService 하나로 통일해서 처리함.
  회원 있는지 유무 같은 가벼운 조회를 할땐 User같은 객체만 보고 실제 파일이 필요할 때만
  BinaryContent를 따로 조회해서 가져옴. 이걸 User에 다 넣었더라면 회원 있는지만 조회하는건데
  다른 쓸모없는 것까지 다 딸려와서 무거웠을 것 그래서 분리함. User, Message는 파일을 직접
