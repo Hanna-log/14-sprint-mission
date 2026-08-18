@@ -2,6 +2,10 @@ package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.repository.MessageRepository;
+import java.util.List;
+import java.util.UUID;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 /*
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Repository;
 그 객체가 필요한 다른 곳(생성자 등)에 자동으로 넣어주는 걸 "주입"이라고 한다.
 */
 @Repository
+@ConditionalOnProperty(name = "discodeit.repository.type", havingValue = "file")
 public class FileMessageRepository extends FileRepository<Message> implements MessageRepository {
 
      /*
@@ -21,8 +26,16 @@ public class FileMessageRepository extends FileRepository<Message> implements Me
 super("message")로 "message"라는 고정값을 부모한테 넘겨준다.
     */
 
-    public FileMessageRepository() {
-        super("message");
+    public FileMessageRepository(
+        @Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
+        super(fileDirectory, "message");
+    }
+
+    @Override //  채널 하나에 속한 메시지 전체 찾기
+    public List<Message> findAllByChannelId(UUID channelId) {
+        return findAll().stream()
+            .filter(message -> message.getChannelId().equals(channelId))
+            .toList();
     }
 
     /*

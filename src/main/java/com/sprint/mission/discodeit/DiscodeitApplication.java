@@ -33,109 +33,14 @@ import org.springframework.context.ConfigurableApplicationContext;
 		   말함.우리 프로젝트의 모든 Bean(FileUserRepository, BasicUserService 등)이 다 들어있음.
 		   .getBean(UserService.class)를 호출해서 이 객체가 갖고있는 기능(메소드) 활용 가능!
 
+			new BasicUserService(userRepository) 하던 걸
+			Spring 컨테이너에서 이미 만들어둔 Bean을 꺼내오는 방식으로 대체
 	 */
 
 @SpringBootApplication
 public class DiscodeitApplication {
 	public static void main(String[] args) {
-		ConfigurableApplicationContext context =
 		SpringApplication.run(DiscodeitApplication.class, args);
 
-		// new BasicUserService(userRepository) 하던 걸
-		// Spring 컨테이너에서 이미 만들어둔 Bean을 꺼내오는 방식으로 대체
-
-		UserService userService = context.getBean(UserService.class);
-		ChannelService channelService = context.getBean(ChannelService.class);
-		MessageService messageService = context.getBean(MessageService.class);
-
-		// 유저, 채널 셋업
-		User user = setupUser(userService);
-		Channel channel = setupChannel(channelService);
-
-		// 테스트
-		messageCreateTest(messageService,channel,user);
 	}
-
-	private static User setupUser(UserService userService) {
-		User user = User.builder().nickName("리키").build();
-		userService.save(user);
-
-		System.out.println("=== 유저 등록 ===");
-		System.out.println(user);
-		return user;
-	}
-
-
-	private static Channel setupChannel(ChannelService channelService) {
-		Channel channel = Channel.builder().channelName("자유게시판").build();
-		channelService.save(channel);
-
-		System.out.println("\n=== 채널 등록 ===");
-		System.out.println(channel);
-		return channel;
-	}
-
-	// 메세지 만드는 부분을 공통 메소드로 뽑음 (재사용 위해)
-	private static Message creatMessage(
-		MessageService messageService,
-		Channel channel,User user, String contents) {
-
-		Message message = Message.builder()
-			.contents(contents)
-			.authorId(user.getId())
-			.channelId(channel.getId())
-			.build();
-
-		messageService.save(message);
-		return message;
-	}
-
-
-	// messageCreateTest가 이제 Message를 return 하도록 바뀜 (뒤에서 재사용해야 하니까)
-	private static Message messageCreateTest(MessageService messageService, Channel channel, User user) {
-		Message message = creatMessage(messageService, channel, user,"안녕하세요! 첫 메세지입니다.");
-		System.out.println("\n=== 메세지 등록 ===");
-		System.out.println(message);
-		System.out.println("\n=== 전체 메세지 목록 ===");
-		messageService.findAll().forEach(System.out::println);
-		return message;
-	}
-
-
-	private static void updateMessageTest(MessageService messageService, Message message) {
-		System.out.println("\n=== 메세지 수정 전 출력 ===");
-		System.out.println(message.getContents());
-		message.update("[수정 후] 내용을 바꿔봤어요~");
-		messageService.update(message);
-		System.out.println("\n=== 메세지 수정 후 출력 ===");
-		System.out.println(messageService.findIdAsString(message.getId()));
-	}
-
-	private static void deleteMessageTest(MessageService messageService,Message message) {
-		System.out.println("\n=== 메세지 삭제 전 출력 ===");
-		System.out.println(message.getContents());
-		messageService.delete(message.getId());
-		System.out.println("\n=== 메세지 삭제 후 전체 목록 (" + messageService.findAll().size()+ "건) ===");
-		messageService.findAll().forEach(System.out::println);
-	}
-
-	private static void validationTest(MessageService messageService,User user,Channel channel){
-		System.out.println("\n=== 정상출력 테스트 ===");
-		Message trueTest = creatMessage(messageService, channel, user, "정상 테스트 결과입니다.");
-		System.out.println(messageService.findIdAsString(trueTest.getId()));
-
-		System.out.println("\n=== 실패출력 테스트 ===");
-		try {
-			Message falseTest = Message.builder()
-				.contents("실패 테스트 결과입니다.")
-				.authorId(UUID.randomUUID())
-				.channelId(channel.getId())
-				.build();
-			messageService.save(falseTest);
-		} catch (UserNotFoundException | ChannelNotFoundException exception) {
-			System.out.println("실패 테스트 결과입니다." + exception.getMessage());
-		}
-
-	}
-
 }
