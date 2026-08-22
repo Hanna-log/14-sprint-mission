@@ -1,15 +1,25 @@
 package com.sprint.mission.discodeit.dto.user;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+
 // 유저 생성 요청에 필요한 값들만 묶어놓은 DTO
 public record UserCreateRequest(
+
+    @NotBlank(message = "이름을 비워둘 수 없습니다.")
     /* private final */ String userName,
+    @NotEmpty(message = "이메일을 비워둘 수 없습니다.")
     /* private final */ String email,
+    @NotEmpty(message = "비밀번호를 비워둘 수 없습니다.")
     /* private final */ String password,
+    @NotEmpty(message = "닉네임을 비워둘 수 없습니다.")
     /* private final */ String nickName
 ) {
 }
 
 /*
+ @NotBlank : 빈값도 허용 안함 <- 보통 이걸 많이씀.
+ @NotEmpty : 빈값 허용
 
 'record'란? 데이터를 담기 위한 데이터 읽기 전용 클래스!
 DTO만들때 많이 사용함. setter 없음 / 불변 객체임

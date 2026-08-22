@@ -1,8 +1,12 @@
 package com.sprint.mission.discodeit.dto.user;
 
+import jakarta.validation.constraints.NotBlank;
+
 // 유저 업데이트 요청건 DTO 생성(닉네임, 비번)
 public record UserUpdateRequest(
+    @NotBlank(message = "닉네임을 비워둘 수 없습니다.")
     /* private final */   String nickName,  //<- 데이터 선언부
+    @NotBlank(message = "비밀번호를 비워둘 수 없습니다.")
     /* private final */   String password
 ) {
     // 추가적인 메서드 넣고싶을 때 여기에 쓰면 됨.

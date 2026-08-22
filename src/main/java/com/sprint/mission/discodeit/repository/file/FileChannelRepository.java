@@ -1,7 +1,11 @@
 package com.sprint.mission.discodeit.repository.file;
 
 import com.sprint.mission.discodeit.entity.Channel;
+import com.sprint.mission.discodeit.entity.ChannelType;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Repository;
 
 /*
@@ -10,6 +14,7 @@ import org.springframework.stereotype.Repository;
 그 객체가 필요한 다른 곳(생성자 등)에 자동으로 넣어주는 걸 "주입"이라고 한다.
 */
 @Repository
+@ConditionalOnProperty(name="discodeit.repository.type", havingValue = "file")
 public class FileChannelRepository extends FileRepository<Channel> implements ChannelRepository {
 
       /*
@@ -21,8 +26,16 @@ public class FileChannelRepository extends FileRepository<Channel> implements Ch
     super("channel")로 "channel"라는 고정값을 부모한테 넘겨준다.
     */
 
-    public FileChannelRepository() {
-        super("channel");
+    public FileChannelRepository(
+        @Value("${discodeit.repository.file-directory:.discodeit}") String fileDirectory) {
+        super(fileDirectory, "channel");
+    }
+
+    @Override // 타입(PUBLIC/PRIVATE)별로 채널 목록 찾기
+    public List<Channel> findAllByType(ChannelType type) {
+        return findAll().stream()
+            .filter(channel -> channel.getType().equals(type))
+            .toList();
     }
 
     /*

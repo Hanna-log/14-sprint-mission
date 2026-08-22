@@ -12,7 +12,7 @@ public record LoginRequest(
 
 'record'란? 데이터를 담기 위한 데이터 읽기 전용 클래스!
 DTO만들때 많이 사용함. setter 없음 / 불변 객체임
-필드는 private final로 만들어짐 / 읽기메소드는 public으로 해서 조회가능!
+필드는 private final로 만들어짐 / 읽기 메소드는 public으로 해서 조회가능!
 
 특징 : getter 메서드 포함,
 @AllArgsConstructor와 비슷한 전체 필드를 받는 생성자O(기본생성자X) <- 기본생성자+setter로 값 채워넣기 불가
