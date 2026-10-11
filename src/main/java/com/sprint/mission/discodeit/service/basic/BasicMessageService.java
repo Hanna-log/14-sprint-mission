@@ -9,8 +9,9 @@ import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.Message;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.message.MessageNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.MessageMapper;
 import com.sprint.mission.discodeit.mapper.PageResponseMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
@@ -23,11 +24,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicMessageService implements MessageService {
@@ -44,12 +47,12 @@ public class BasicMessageService implements MessageService {
     @Override
     public MessageDto create(MessageCreateRequest request,
         List<BinaryContentCreateRequest> attachmentRequests) {
+        log.debug("메시지 생성 시작: channelId={}, authorId={}, 첨부파일 수={}",
+            request.channelId(), request.authorId(), attachmentRequests.size());
         User author = userRepository.findById(request.authorId())
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.USER_NOT_FOUND,
-                "해당 유저를 찾을 수 없습니다. authorId: " + request.authorId()));
+            .orElseThrow(() -> new UserNotFoundException(request.authorId()));
         Channel channel = channelRepository.findById(request.channelId())
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.CHANNEL_NOT_FOUND,
-                "해당 채널을 찾을 수 없습니다. channelId: " + request.channelId()));
+            .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
 
         List<BinaryContent> attachments = new ArrayList<>();
         for (BinaryContentCreateRequest attachmentRequest : attachmentRequests) {
@@ -63,6 +66,7 @@ public class BasicMessageService implements MessageService {
 
         Message message = new Message(request.content(), channel, author, attachments);
         messageRepository.save(message);
+        log.info("메시지 생성 완료: messageId={}, channelId={}", message.getId(), channel.getId());
         return messageMapper.toDto(message);
     }
 
@@ -77,20 +81,23 @@ public class BasicMessageService implements MessageService {
     @Transactional
     @Override
     public MessageDto update(UUID messageId, MessageUpdateRequest request) {
+        log.debug("메시지 수정 시작: messageId={}", messageId);
         Message message = getMessage(messageId);
         message.update(request.newContent());
+        log.info("메시지 수정 완료: messageId={}", messageId);
         return messageMapper.toDto(message);
     }
 
     @Transactional
     @Override
     public void delete(UUID messageId) {
+        log.debug("메시지 삭제 시작: messageId={}", messageId);
         messageRepository.delete(getMessage(messageId));
+        log.info("메시지 삭제 완료: messageId={}", messageId);
     }
 
     private Message getMessage(UUID messageId) {
         return messageRepository.findById(messageId)
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.MESSAGE_NOT_FOUND,
-                "해당 메세지를 찾을 수 없습니다. messageId: " + messageId));
+            .orElseThrow(() -> new MessageNotFoundException(messageId));
     }
 }

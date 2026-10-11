@@ -7,8 +7,8 @@ import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.entity.BinaryContent;
 import com.sprint.mission.discodeit.entity.User;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.user.UserAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.BinaryContentRepository;
 import com.sprint.mission.discodeit.repository.UserRepository;
@@ -18,9 +18,11 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BasicUserService implements UserService {
@@ -33,6 +35,7 @@ public class BasicUserService implements UserService {
     @Transactional
     @Override
     public UserDto create(UserCreateRequest request, BinaryContentCreateRequest profileRequest) {
+        log.debug("사용자 생성 시작: username={}, email={}", request.username(), request.email());
         validateDuplicateUsername(request.username());
         validateDuplicateEmail(request.email());
 
@@ -41,6 +44,7 @@ public class BasicUserService implements UserService {
         new UserStatus(user, Instant.now());
 
         userRepository.save(user);
+        log.info("사용자 생성 완료: userId={}, username={}", user.getId(), user.getUsername());
         return userMapper.toDto(user);
     }
 
@@ -62,6 +66,7 @@ public class BasicUserService implements UserService {
     @Override
     public UserDto update(UUID userId, UserUpdateRequest request,
         BinaryContentCreateRequest profileRequest) {
+        log.debug("사용자 수정 시작: userId={}", userId);
         User user = getUser(userId);
 
         if (request.newUsername() != null && !request.newUsername().equals(user.getUsername())) {
@@ -76,19 +81,21 @@ public class BasicUserService implements UserService {
             user.updateProfile(saveProfile(profileRequest));
         }
 
+        log.info("사용자 수정 완료: userId={}", userId);
         return userMapper.toDto(user);
     }
 
     @Transactional
     @Override
     public void delete(UUID userId) {
+        log.debug("사용자 삭제 시작: userId={}", userId);
         userRepository.delete(getUser(userId));
+        log.info("사용자 삭제 완료: userId={}", userId);
     }
 
     private User getUser(UUID userId) {
         return userRepository.findById(userId)
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.USER_NOT_FOUND,
-                "해당 유저를 찾을 수 없습니다. userId: " + userId));
+            .orElseThrow(() -> new UserNotFoundException(userId));
     }
 
     private BinaryContent saveProfile(BinaryContentCreateRequest profileRequest) {
@@ -105,15 +112,13 @@ public class BasicUserService implements UserService {
 
     private void validateDuplicateUsername(String username) {
         if (userRepository.existsByUsername(username)) {
-            throw new DiscodeitException(ErrorCode.DUPLICATE_USERNAME,
-                "이미 사용 중인 username입니다: " + username);
+            throw new UserAlreadyExistsException("username", username);
         }
     }
 
     private void validateDuplicateEmail(String email) {
         if (userRepository.existsByEmail(email)) {
-            throw new DiscodeitException(ErrorCode.DUPLICATE_EMAIL,
-                "이미 사용 중인 email입니다: " + email);
+            throw new UserAlreadyExistsException("email", email);
         }
     }
 }

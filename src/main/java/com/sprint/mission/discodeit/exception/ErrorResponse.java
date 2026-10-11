@@ -1,33 +1,38 @@
 package com.sprint.mission.discodeit.exception;
 
 import java.time.Instant;
+import java.util.Map;
 
 public record ErrorResponse(
+    Instant timestamp,
     String code,
     String message,
-    int status,
-    Instant timestamp
+    Map<String, Object> details,
+    String exceptionType,
+    int status
 ) {
 
     public static ErrorResponse from(DiscodeitException exception) {
+        ErrorCode errorCode = exception.getErrorCode();
         return new ErrorResponse(
-            exception.getErrorCode().name(),
+            exception.getTimestamp(),
+            errorCode.name(),
             exception.getMessage(),
-            exception.getErrorCode().getHttpStatus().value(),
-            exception.getTimeStamp()
+            exception.getDetails(),
+            exception.getClass().getSimpleName(),
+            errorCode.getHttpStatus().value()
         );
     }
 
-    public static ErrorResponse of(ErrorCode errorCode) {
-        return of(errorCode, errorCode.getMessage());
-    }
-
-    public static ErrorResponse of(ErrorCode errorCode, String message) {
+    public static ErrorResponse of(ErrorCode errorCode, Map<String, Object> details,
+        Exception exception) {
         return new ErrorResponse(
+            Instant.now(),
             errorCode.name(),
-            message,
-            errorCode.getHttpStatus().value(),
-            Instant.now()
+            errorCode.getMessage(),
+            details,
+            exception.getClass().getSimpleName(),
+            errorCode.getHttpStatus().value()
         );
     }
 }

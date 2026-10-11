@@ -5,8 +5,7 @@ import com.sprint.mission.discodeit.dto.message.MessageCreateRequest;
 import com.sprint.mission.discodeit.dto.message.MessageDto;
 import com.sprint.mission.discodeit.dto.message.MessageUpdateRequest;
 import com.sprint.mission.discodeit.dto.response.PageResponse;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.binarycontent.FileStorageException;
 import com.sprint.mission.discodeit.service.MessageService;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -82,8 +81,7 @@ public class MessageController {
             return new BinaryContentCreateRequest(
                 file.getOriginalFilename(), file.getContentType(), file.getBytes());
         } catch (IOException e) {
-            throw new DiscodeitException(ErrorCode.FILE_STORAGE_ERROR,
-                "첨부파일을 읽을 수 없습니다: " + file.getOriginalFilename());
+            throw new FileStorageException(file.getOriginalFilename());
         }
     }
 }

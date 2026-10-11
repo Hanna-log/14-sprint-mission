@@ -3,8 +3,7 @@ package com.sprint.mission.discodeit.service.basic;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.UserStatus;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.userstatus.UserStatusNotFoundException;
 import com.sprint.mission.discodeit.mapper.UserStatusMapper;
 import com.sprint.mission.discodeit.repository.UserStatusRepository;
 import com.sprint.mission.discodeit.service.UserStatusService;
@@ -47,15 +46,13 @@ public class BasicUserStatusService implements UserStatusService {
     @Override
     public UserStatusDto updateByUserId(UUID userId, UserStatusUpdateRequest request) {
         UserStatus userStatus = userStatusRepository.findByUserId(userId)
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.USER_STATUS_NOT_FOUND,
-                "UserStatus를 찾을 수 없습니다. userId: " + userId));
+            .orElseThrow(() -> new UserStatusNotFoundException("userId", userId));
         userStatus.update(request.newLastActiveAt());
         return userStatusMapper.toDto(userStatus);
     }
 
     private UserStatus getUserStatus(UUID userStatusId) {
         return userStatusRepository.findById(userStatusId)
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.USER_STATUS_NOT_FOUND,
-                "UserStatus를 찾을 수 없습니다. id: " + userStatusId));
+            .orElseThrow(() -> new UserStatusNotFoundException("userStatusId", userStatusId));
     }
 }

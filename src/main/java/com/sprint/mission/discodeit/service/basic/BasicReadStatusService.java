@@ -6,8 +6,10 @@ import com.sprint.mission.discodeit.dto.readstatus.ReadStatusUpdateRequest;
 import com.sprint.mission.discodeit.entity.Channel;
 import com.sprint.mission.discodeit.entity.ReadStatus;
 import com.sprint.mission.discodeit.entity.User;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.channel.ChannelNotFoundException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusAlreadyExistsException;
+import com.sprint.mission.discodeit.exception.readstatus.ReadStatusNotFoundException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
 import com.sprint.mission.discodeit.mapper.ReadStatusMapper;
 import com.sprint.mission.discodeit.repository.ChannelRepository;
 import com.sprint.mission.discodeit.repository.ReadStatusRepository;
@@ -33,13 +35,11 @@ public class BasicReadStatusService implements ReadStatusService {
     @Override
     public ReadStatusDto create(ReadStatusCreateRequest request) {
         User user = userRepository.findById(request.userId())
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.USER_NOT_FOUND,
-                "해당 유저를 찾을 수 없습니다. userId: " + request.userId()));
+            .orElseThrow(() -> new UserNotFoundException(request.userId()));
         Channel channel = channelRepository.findById(request.channelId())
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.CHANNEL_NOT_FOUND,
-                "해당 채널을 찾을 수 없습니다. channelId: " + request.channelId()));
+            .orElseThrow(() -> new ChannelNotFoundException(request.channelId()));
         if (readStatusRepository.existsByUserIdAndChannelId(user.getId(), channel.getId())) {
-            throw new DiscodeitException(ErrorCode.DUPLICATE_READ_STATUS);
+            throw new ReadStatusAlreadyExistsException(user.getId(), channel.getId());
         }
 
         Instant lastReadAt = request.lastReadAt() != null ? request.lastReadAt() : Instant.now();
@@ -78,7 +78,6 @@ public class BasicReadStatusService implements ReadStatusService {
 
     private ReadStatus getReadStatus(UUID readStatusId) {
         return readStatusRepository.findById(readStatusId)
-            .orElseThrow(() -> new DiscodeitException(ErrorCode.READ_STATUS_NOT_FOUND,
-                "ReadStatus를 찾을 수 없습니다. id: " + readStatusId));
+            .orElseThrow(() -> new ReadStatusNotFoundException(readStatusId));
     }
 }

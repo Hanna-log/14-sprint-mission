@@ -1,8 +1,7 @@
 package com.sprint.mission.discodeit.entity;
 
 import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.channel.PrivateChannelUpdateException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -36,7 +35,7 @@ public class Channel extends BaseUpdatableEntity {
 
     public void update(String newName, String newDescription) {
         if (this.type == ChannelType.PRIVATE) {
-            throw new DiscodeitException(ErrorCode.PRIVATE_CHANNEL_UPDATE);
+            throw new PrivateChannelUpdateException(getId());
         }
         if (newName != null) {
             this.name = newName;

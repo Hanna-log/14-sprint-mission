@@ -6,8 +6,7 @@ import com.sprint.mission.discodeit.dto.user.UserDto;
 import com.sprint.mission.discodeit.dto.user.UserUpdateRequest;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusDto;
 import com.sprint.mission.discodeit.dto.userstatus.UserStatusUpdateRequest;
-import com.sprint.mission.discodeit.exception.DiscodeitException;
-import com.sprint.mission.discodeit.exception.ErrorCode;
+import com.sprint.mission.discodeit.exception.binarycontent.FileStorageException;
 import com.sprint.mission.discodeit.service.UserService;
 import com.sprint.mission.discodeit.service.UserStatusService;
 import jakarta.validation.Valid;
@@ -88,8 +87,7 @@ public class UserController {
             return new BinaryContentCreateRequest(
                 profile.getOriginalFilename(), profile.getContentType(), profile.getBytes());
         } catch (IOException e) {
-            throw new DiscodeitException(ErrorCode.FILE_STORAGE_ERROR,
-                "프로필 이미지를 읽을 수 없습니다: " + profile.getOriginalFilename());
+            throw new FileStorageException(profile.getOriginalFilename());
         }
     }
 }
